@@ -21,6 +21,8 @@
         </div>
       </div>
       <div id="unity-warning"> </div>
+      <!-- Padel: shown on a phone held upright; the game is played sideways. -->
+      <div id="padel-rotate">Turn your phone sideways to play</div>
       <div id="unity-footer">
         <div id="unity-logo-title-footer"></div>
         <div id="unity-fullscreen-button"></div>
@@ -104,12 +106,22 @@
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
         // Mobile device style: fill the whole browser client area with the game canvas:
 
+        // Padel: no height=device-height (Unity's default). On iOS 26 a viewport tag with it is
+        // reported to go wrong (WebKit bug 301108), and after the phone was rotated the buttons no
+        // longer answered taps (task 3.7a). Safari works out the height itself.
         var meta = document.createElement('meta');
         meta.name = 'viewport';
-        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+        meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
         document.getElementsByTagName('head')[0].appendChild(meta);
         document.querySelector("#unity-container").className = "unity-mobile";
         canvas.className = "unity-mobile";
+        document.body.classList.add("padel-mobile");
+
+        // Padel: after a rotation, put the page back at the top left, so the canvas sits exactly
+        // under the screen where the touches land.
+        function padelSettle() { setTimeout(function () { window.scrollTo(0, 0); }, 150); }
+        window.addEventListener("orientationchange", padelSettle);
+        window.addEventListener("resize", padelSettle);
 
         // To lower canvas resolution on mobile devices to gain some
         // performance, uncomment the following line:
